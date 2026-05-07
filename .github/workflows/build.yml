@@ -48,7 +48,10 @@ jobs:
           echo "android.enableJetifier=true" >> gradle.properties
 
       - name: Build APK
-        run: flutter build apk --release
+        run: |
+          flutter clean
+          flutter pub get
+          flutter build apk --release --verbose
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
