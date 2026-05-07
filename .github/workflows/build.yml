@@ -73,20 +73,34 @@ jobs:
 
       - name: Patch ML Kit namespace
         run: |
-          FILE=$(find ~/.pub-cache -path "*google_mlkit_commons-*/android/build.gradle" | head -n 1)
+          python3 << 'EOF'
+          import glob
 
-          if [ -f "$FILE" ]; then
-            echo "Patching namespace in $FILE"
+          files = glob.glob(
+              '/home/runner/.pub-cache/hosted/pub.dev/google_mlkit_commons-*/android/build.gradle'
+          )
 
-            if ! grep -q "namespace" "$FILE"; then
-              sed -i '/android {/a\    namespace "com.google.mlkit.commons"' "$FILE"
-            fi
+          if not files:
+              raise Exception('google_mlkit_commons build.gradle not found')
 
-            cat "$FILE"
-          else
-            echo "google_mlkit_commons build.gradle not found"
-          fi
+          path = files[0]
 
+          print("PATCHING:", path)
+
+          with open(path, 'r') as f:
+              content = f.read()
+
+          if 'namespace "com.google.mlkit.commons"' not in content:
+              content = content.replace(
+                  'android {',
+                  'android {\n    namespace "com.google.mlkit.commons"'
+              )
+
+          with open(path, 'w') as f:
+              f.write(content)
+
+          print("PATCH COMPLETE")
+          EOF
       - name: Build APK
         working-directory: fresh_project
         run: flutter build apk --release
