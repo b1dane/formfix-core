@@ -27,6 +27,12 @@ jobs:
       - name: Create fresh Flutter project
         run: flutter create --org com.formfix --project-name formfix fresh_project
 
+      - name: Set minSdkVersion in fresh project
+        run: |
+          sed -i 's/minSdkVersion flutter.minSdkVersion/minSdkVersion 21/' fresh_project/android/app/build.gradle
+          sed -i 's/minSdk flutter.minSdkVersion/minSdk 21/' fresh_project/android/app/build.gradle
+          cat fresh_project/android/app/build.gradle
+
       - name: Copy source code into fresh project
         run: |
           cp -r source/lib/* fresh_project/lib/
