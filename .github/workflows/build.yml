@@ -39,6 +39,14 @@ jobs:
             fi
           done
 
+      - name: Fix Android toolchain compatibility
+        run: |
+          cd android || true
+
+          # Force modern AndroidX + Gradle compatibility
+          echo "android.useAndroidX=true" >> gradle.properties
+          echo "android.enableJetifier=true" >> gradle.properties
+
       - name: Build APK
         run: flutter build apk --release
 
