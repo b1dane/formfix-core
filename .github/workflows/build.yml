@@ -81,7 +81,8 @@ jobs:
           )
 
           if not files:
-              raise Exception('google_mlkit_commons build.gradle not found')
+              print("google_mlkit_commons not installed")
+              exit(0)
 
           path = files[0]
 
