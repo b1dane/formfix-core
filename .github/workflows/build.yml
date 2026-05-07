@@ -71,36 +71,38 @@ jobs:
             cp source/android/app/src/main/AndroidManifest.xml fresh_project/android/app/src/main/AndroidManifest.xml
           fi
 
-      - name: Patch ML Kit namespace
+      - name: Force namespace for old plugins
         run: |
           python3 << 'EOF'
-          import glob
+          import os
 
-          files = glob.glob(
-              '/home/runner/.pub-cache/hosted/pub.dev/google_mlkit_commons-*/android/build.gradle'
-          )
+          gradle_file = 'fresh_project/android/build.gradle'
 
-          if not files:
-              print("google_mlkit_commons not installed")
-              exit(0)
-
-          path = files[0]
-
-          print("PATCHING:", path)
-
-          with open(path, 'r') as f:
+          with open(gradle_file, 'r') as f:
               content = f.read()
 
-          if 'namespace "com.google.mlkit.commons"' not in content:
-              content = content.replace(
-                  'android {',
-                  'android {\n    namespace "com.google.mlkit.commons"'
-              )
+          inject = """
 
-          with open(path, 'w') as f:
+subprojects {
+    afterEvaluate { project ->
+        if (project.hasProperty('android')) {
+            project.android {
+                if (namespace == null) {
+                    namespace project.group
+                }
+            }
+        }
+    }
+}
+"""
+
+          if 'namespace == null' not in content:
+              content += inject
+
+          with open(gradle_file, 'w') as f:
               f.write(content)
 
-          print("PATCH COMPLETE")
+          print("GLOBAL NAMESPACE PATCH APPLIED")
           EOF
       - name: Build APK
         working-directory: fresh_project
