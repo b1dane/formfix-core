@@ -71,9 +71,21 @@ jobs:
             cp source/android/app/src/main/AndroidManifest.xml fresh_project/android/app/src/main/AndroidManifest.xml
           fi
 
-      - name: Install dependencies
-        working-directory: fresh_project
-        run: flutter pub get
+      - name: Patch ML Kit namespace
+        run: |
+          FILE=$(find ~/.pub-cache -path "*google_mlkit_commons-*/android/build.gradle" | head -n 1)
+
+          if [ -f "$FILE" ]; then
+            echo "Patching namespace in $FILE"
+
+            if ! grep -q "namespace" "$FILE"; then
+              sed -i '/android {/a\    namespace "com.google.mlkit.commons"' "$FILE"
+            fi
+
+            cat "$FILE"
+          else
+            echo "google_mlkit_commons build.gradle not found"
+          fi
 
       - name: Build APK
         working-directory: fresh_project
