@@ -12,42 +12,30 @@ jobs:
       - uses: actions/checkout@v4
         with:
           path: source
-
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: "17"
-
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: "3.19.0"
           channel: stable
           cache: false
-
       - name: Create fresh Flutter project
         run: flutter create --org com.formfix --project-name formfix fresh_project
-
-      - name: Set minSdkVersion in fresh project
-        run: |
-          sed -i 's/minSdkVersion flutter.minSdkVersion/minSdkVersion 21/' fresh_project/android/app/build.gradle
-          sed -i 's/minSdk flutter.minSdkVersion/minSdk 21/' fresh_project/android/app/build.gradle
-          cat fresh_project/android/app/build.gradle
-
-      - name: Copy source code into fresh project
+      - name: Set minSdk 21
+        run: sed -i 's/minSdk flutter.minSdkVersion/minSdk 21/' fresh_project/android/app/build.gradle || sed -i 's/minSdkVersion flutter.minSdkVersion/minSdkVersion 21/' fresh_project/android/app/build.gradle || true
+      - name: Copy source
         run: |
           cp -r source/lib/* fresh_project/lib/
           cp source/pubspec.yaml fresh_project/pubspec.yaml
           cp source/android/app/src/main/AndroidManifest.xml fresh_project/android/app/src/main/AndroidManifest.xml
-          cp source/android/app/src/main/kotlin/com/formfix/app/MainActivity.kt fresh_project/android/app/src/main/kotlin/com/formfix/app/MainActivity.kt 2>/dev/null || true
-
       - name: Install dependencies
         working-directory: fresh_project
         run: flutter pub get
-
       - name: Build APK
         working-directory: fresh_project
         run: flutter build apk --release --no-shrink
-
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
