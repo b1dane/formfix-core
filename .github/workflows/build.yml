@@ -45,6 +45,18 @@ jobs:
       - name: Verify dependencies
         run: flutter pub get
 
+      - name: Patch ML Kit namespace
+        run: |
+          PLUGIN_DIR="$HOME/.pub-cache/hosted/pub.dev/google_mlkit_commons-0.3.0/android"
+          TARGET_FILE="$PLUGIN_DIR/build.gradle"
+
+          if [ -f "$TARGET_FILE" ] && ! grep -q "namespace" "$TARGET_FILE"; then
+            echo "Patching google_mlkit_commons namespace..."
+            sed -i '/android {/a\    namespace "com.google.mlkit.commons"' "$TARGET_FILE"
+          else
+            echo "Namespace already present or plugin not found."
+          fi
+
       - name: Build APK (release)
         run: flutter build apk --release
 
