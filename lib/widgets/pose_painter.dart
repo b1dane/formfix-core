@@ -73,3 +73,49 @@ class PosePainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
+
+    bn(PoseLandmarkType.leftShoulder, PoseLandmarkType.rightShoulder);
+    bn(PoseLandmarkType.leftHip, PoseLandmarkType.rightHip);
+    bn(PoseLandmarkType.leftShoulder, PoseLandmarkType.leftHip);
+    bn(PoseLandmarkType.rightShoulder, PoseLandmarkType.rightHip);
+    bn(PoseLandmarkType.leftShoulder, PoseLandmarkType.leftElbow);
+    bn(PoseLandmarkType.leftElbow, PoseLandmarkType.leftWrist);
+    bn(PoseLandmarkType.rightShoulder, PoseLandmarkType.rightElbow);
+    bn(PoseLandmarkType.rightElbow, PoseLandmarkType.rightWrist);
+    bn(PoseLandmarkType.leftHip, PoseLandmarkType.leftKnee);
+    bn(PoseLandmarkType.leftKnee, PoseLandmarkType.leftAnkle);
+    bn(PoseLandmarkType.rightHip, PoseLandmarkType.rightKnee);
+    bn(PoseLandmarkType.rightKnee, PoseLandmarkType.rightAnkle);
+    bn(PoseLandmarkType.leftShoulder, PoseLandmarkType.leftEar, w: true);
+    bn(PoseLandmarkType.rightShoulder, PoseLandmarkType.rightEar, w: true);
+    for (final t in [PoseLandmarkType.nose, PoseLandmarkType.leftShoulder, PoseLandmarkType.rightShoulder, PoseLandmarkType.leftElbow, PoseLandmarkType.rightElbow, PoseLandmarkType.leftWrist, PoseLandmarkType.rightWrist, PoseLandmarkType.leftHip, PoseLandmarkType.rightHip, PoseLandmarkType.leftKnee, PoseLandmarkType.rightKnee, PoseLandmarkType.leftAnkle, PoseLandmarkType.rightAnkle]) {
+      jt(t);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+}
+
+    bn(PoseLandmarkType.leftShoulder, PoseLandmarkType.rightShoulder);
+    bn(PoseLandmarkType.leftHip, PoseLandmarkType.rightHip);
+    bn(PoseLandmarkType.leftShoulder, PoseLandmarkType.leftHip);
+    bn(PoseLandmarkType.rightShoulder, PoseLandmarkType.rightHip);
+    bn(PoseLandmarkType.leftShoulder, PoseLandmarkType.leftElbow);
+    bn(PoseLandmarkType.leftElbow, PoseLandmarkType.leftWrist);
+    bn(PoseLandmarkType.rightShoulder, PoseLandmarkType.rightElbow);
+    bn(PoseLandmarkType.rightElbow, PoseLandmarkType.rightWrist);
+    bn(PoseLandmarkType.leftHip, PoseLandmarkType.leftKnee);
+    bn(PoseLandmarkType.leftKnee, PoseLandmarkType.leftAnkle);
+    bn(PoseLandmarkType.rightHip, PoseLandmarkType.rightKnee);
+    bn(PoseLandmarkType.rightKnee, PoseLandmarkType.rightAnkle);
+    bn(PoseLandmarkType.leftShoulder, PoseLandmarkType.leftEar, w: true);
+    bn(PoseLandmarkType.rightShoulder, PoseLandmarkType.rightEar, w: true);
+    for (final t in [PoseLandmarkType.nose, PoseLandmarkType.leftShoulder, PoseLandmarkType.rightShoulder, PoseLandmarkType.leftElbow, PoseLandmarkType.rightElbow, PoseLandmarkType.leftWrist, PoseLandmarkType.rightWrist, PoseLandmarkType.leftHip, PoseLandmarkType.rightHip, PoseLandmarkType.leftKnee, PoseLandmarkType.rightKnee, PoseLandmarkType.leftAnkle, PoseLandmarkType.rightAnkle]) {
+      jt(t);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+}
