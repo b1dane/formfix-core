@@ -23,8 +23,42 @@ jobs:
           cache: false
       - name: Create fresh Flutter project
         run: flutter create --org com.formfix --project-name formfix fresh_project
-      - name: Set minSdk 21
-        run: sed -i 's/minSdk flutter.minSdkVersion/minSdk 21/' fresh_project/android/app/build.gradle || sed -i 's/minSdkVersion flutter.minSdkVersion/minSdkVersion 21/' fresh_project/android/app/build.gradle || true
+      - name: Overwrite build.gradle with known-good config
+        run: |
+          cat > fresh_project/android/app/build.gradle << 'GRADLE'
+          plugins {
+              id "com.android.application"
+              id "kotlin-android"
+              id "dev.flutter.flutter-gradle-plugin"
+          }
+          android {
+              namespace "com.formfix.formfix"
+              compileSdk flutter.compileSdkVersion
+              ndkVersion flutter.ndkVersion
+              compileOptions {
+                  sourceCompatibility JavaVersion.VERSION_1_8
+                  targetCompatibility JavaVersion.VERSION_1_8
+              }
+              kotlinOptions {
+                  jvmTarget = '1.8'
+              }
+              defaultConfig {
+                  applicationId "com.formfix.formfix"
+                  minSdk 21
+                  targetSdk flutter.targetSdkVersion
+                  versionCode 1
+                  versionName "1.0.0"
+              }
+              buildTypes {
+                  release {
+                      signingConfig signingConfigs.debug
+                  }
+              }
+          }
+          flutter {
+              source '../..'
+          }
+          GRADLE
       - name: Copy source
         run: |
           cp -r source/lib/* fresh_project/lib/
