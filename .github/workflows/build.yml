@@ -24,7 +24,20 @@ jobs:
       - name: Create fresh Flutter project
         run: /opt/flutter/bin/flutter create --org com.formfix --project-name formfix fresh_project
       - name: Fix minSdk 24
-        run: python3 -c "import re,sys; path='fresh_project/android/app/build.gradle'; c=open(path).read(); c=re.sub('minSdk [0-9]+','minSdk 24',c); open(path,'w').write(c); print('done')"
+        run: |
+          ls fresh_project/android/app/
+          python3 -c "
+import re,os
+for f in ['fresh_project/android/app/build.gradle','fresh_project/android/app/build.gradle.kts']:
+    if os.path.exists(f):
+        c=open(f).read()
+        print('Found:',f)
+        print('Before:',c[:200])
+        c=re.sub('minSdk[= ]+[0-9]+','minSdk = 24',c)
+        open(f,'w').write(c)
+        print('Fixed')
+        break
+" 
       - name: Copy source
         run: |
           cp -r source/lib/* fresh_project/lib/
