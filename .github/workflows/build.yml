@@ -8,6 +8,8 @@ jobs:
   build:
     name: Build Release APK
     runs-on: ubuntu-latest
+    env:
+      FLUTTER_HOME: /opt/flutter
     steps:
       - uses: actions/checkout@v4
         with:
@@ -18,20 +20,27 @@ jobs:
           java-version: "17"
       - name: Install Flutter 3.41.9
         run: |
-          git clone https://github.com/flutter/flutter.git -b 3.41.9 --depth 1 $HOME/flutter
-          echo "$HOME/flutter/bin" >> $GITHUB_PATH
-      - name: Flutter version check
-        run: flutter --version
+          git clone https://github.com/flutter/flutter.git -b 3.41.9 --depth 1 /opt/flutter
+          export PATH="/opt/flutter/bin:$PATH"
+          flutter precache --android
+          flutter --version
+          echo "/opt/flutter/bin" >> $GITHUB_PATH
       - name: Create fresh Flutter project
-        run: flutter create --org com.formfix --project-name formfix fresh_project
-      - name: Fix minSdk in build.gradle
         run: |
-          python3 -c "
-          import re; path='fresh_project/android/app/build.gradle'
-          c=open(path).read()
-          c=re.sub(r'minSdk[Version]*\s+\S+','minSdk 24',c)
-          open(path,'w').write(c)
-          print('done')"
+          export PATH="/opt/flutter/bin:$PATH"
+          flutter create --org com.formfix --project-name formfix fresh_project
+      - name: Fix minSdk 24
+        run: |
+          python3 << 'EOF'
+import re
+path = 'fresh_project/android/app/build.gradle'
+c = open(path).read()
+print('BEFORE minSdk:', re.findall(r'minSdk\S*\s+\S+', c))
+c = re.sub(r'minSdk\s+\S+', 'minSdk 24', c)
+c = re.sub(r'minSdkVersion\s+\S+', 'minSdkVersion 24', c)
+open(path, 'w').write(c)
+print('AFTER minSdk:', re.findall(r'minSdk\S*\s+\S+', c))
+EOF
       - name: Copy source
         run: |
           cp -r source/lib/* fresh_project/lib/
