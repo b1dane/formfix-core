@@ -26,18 +26,9 @@ jobs:
       - name: Fix minSdk 24
         run: |
           ls fresh_project/android/app/
-          python3 -c "
-import re,os
-for f in ['fresh_project/android/app/build.gradle','fresh_project/android/app/build.gradle.kts']:
-    if os.path.exists(f):
-        c=open(f).read()
-        print('Found:',f)
-        print('Before:',c[:200])
-        c=re.sub('minSdk[= ]+[0-9]+','minSdk = 24',c)
-        open(f,'w').write(c)
-        print('Fixed')
-        break
-" 
+          grep -r minSdk fresh_project/android/app/ || true
+          find fresh_project/android -name "*.gradle*" | xargs grep -l minSdk | xargs sed -i 's/minSdk = [0-9]*/minSdk = 24/g; s/minSdkVersion [0-9]*/minSdkVersion 24/g'
+          grep -r minSdk fresh_project/android/app/ || true
       - name: Copy source
         run: |
           cp -r source/lib/* fresh_project/lib/
