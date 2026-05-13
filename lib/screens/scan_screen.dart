@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:camera/camera.dart';
 import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -93,24 +92,13 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
     if (rotation == null) return null;
     final format = InputImageFormatValue.fromRawValue(image.format.raw);
     if (format == null) return null;
-    final WriteBuffer allBytes = WriteBuffer();
-    for (final Plane plane in image.planes) {
-      allBytes.putUint8List(plane.bytes);
-    }
-    final bytes = allBytes.done().buffer.asUint8List();
     return InputImage.fromBytes(
-      bytes: bytes,
-      inputImageData: InputImageData(
+      bytes: image.planes[0].bytes,
+      metadata: InputImageMetadata(
         size: Size(image.width.toDouble(), image.height.toDouble()),
-        imageRotation: rotation,
-        inputImageFormat: format,
-        planeData: image.planes.map((Plane plane) {
-          return InputImagePlaneMetadata(
-            bytesPerRow: plane.bytesPerRow,
-            height: plane.height,
-            width: plane.width,
-          );
-        }).toList(),
+        rotation: rotation,
+        format: format,
+        bytesPerRow: image.planes[0].bytesPerRow,
       ),
     );
   }
