@@ -8,8 +8,6 @@ jobs:
   build:
     name: Build Release APK
     runs-on: ubuntu-latest
-    env:
-      FLUTTER_HOME: /opt/flutter
     steps:
       - uses: actions/checkout@v4
         with:
@@ -21,26 +19,14 @@ jobs:
       - name: Install Flutter 3.41.9
         run: |
           git clone https://github.com/flutter/flutter.git -b 3.41.9 --depth 1 /opt/flutter
-          export PATH="/opt/flutter/bin:$PATH"
-          flutter precache --android
-          flutter --version
-          echo "/opt/flutter/bin" >> $GITHUB_PATH
+          /opt/flutter/bin/flutter precache --android
+          /opt/flutter/bin/flutter --version
       - name: Create fresh Flutter project
-        run: |
-          export PATH="/opt/flutter/bin:$PATH"
-          flutter create --org com.formfix --project-name formfix fresh_project
+        run: /opt/flutter/bin/flutter create --org com.formfix --project-name formfix fresh_project
       - name: Fix minSdk 24
         run: |
-          python3 << 'EOF'
-import re
-path = 'fresh_project/android/app/build.gradle'
-c = open(path).read()
-print('BEFORE minSdk:', re.findall(r'minSdk\S*\s+\S+', c))
-c = re.sub(r'minSdk\s+\S+', 'minSdk 24', c)
-c = re.sub(r'minSdkVersion\s+\S+', 'minSdkVersion 24', c)
-open(path, 'w').write(c)
-print('AFTER minSdk:', re.findall(r'minSdk\S*\s+\S+', c))
-EOF
+          python3 -c "
+import re; path='fresh_project/android/app/build.gradle'; c=open(path).read(); c=re.sub(r'minSdk\s+\S+','minSdk 24',c); c=re.sub(r'minSdkVersion\s+\S+','minSdkVersion 24',c); open(path,'w').write(c); print('minSdk fixed')"
       - name: Copy source
         run: |
           cp -r source/lib/* fresh_project/lib/
@@ -48,10 +34,10 @@ EOF
           cp source/android/app/src/main/AndroidManifest.xml fresh_project/android/app/src/main/AndroidManifest.xml
       - name: Install dependencies
         working-directory: fresh_project
-        run: flutter pub get
+        run: /opt/flutter/bin/flutter pub get
       - name: Build APK
         working-directory: fresh_project
-        run: flutter build apk --release --no-shrink
+        run: /opt/flutter/bin/flutter build apk --release --no-shrink
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
