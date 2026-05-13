@@ -23,20 +23,17 @@ jobs:
           cache: false
       - name: Create fresh Flutter project
         run: flutter create --org com.formfix --project-name formfix fresh_project
-      - name: Fix minSdkVersion in build.gradle
-        run: python3 -c "
+      - name: Fix minSdk in build.gradle
+        run: |
+          cat > /tmp/fix_sdk.py << 'EOF'
           import re
-          f = open('fresh_project/android/app/build.gradle', 'r')
-          c = f.read()
-          f.close()
-          print('BEFORE:', c)
-          c2 = re.sub(r'minSdk\s+\S+', 'minSdk 24', c)
-          c3 = re.sub(r'minSdkVersion\s+\S+', 'minSdkVersion 24', c2)
-          f = open('fresh_project/android/app/build.gradle', 'w')
-          f.write(c3)
-          f.close()
-          print('AFTER:', c3)
-          "
+          c = open('fresh_project/android/app/build.gradle').read()
+          c = re.sub(r'minSdk\s+\S+', 'minSdk 24', c)
+          c = re.sub(r'minSdkVersion\s+\S+', 'minSdkVersion 24', c)
+          open('fresh_project/android/app/build.gradle', 'w').write(c)
+          print('minSdk fixed')
+          EOF
+          python3 /tmp/fix_sdk.py
       - name: Copy source
         run: |
           cp -r source/lib/* fresh_project/lib/
