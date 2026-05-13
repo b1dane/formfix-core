@@ -1,5 +1,4 @@
-name: Formfix Android Build
-
+name: Build FormFix APK
 on:
   push:
     branches: [ main ]
@@ -7,54 +6,51 @@ on:
 
 jobs:
   build:
+    name: Build Release APK
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Java
-        uses: actions/setup-java@v4
+      - uses: actions/checkout@v4
+        with:
+          path: source
+      - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 17
-
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
+          java-version: "17"
+      - uses: subosito/flutter-action@v2
         with:
-          flutter-version: 3.8.0
+          flutter-version: "3.19.0"
           channel: stable
-          cache: true
-
-      - name: Fix Flutter + Android dependencies
+          cache: false
+      - name: Create fresh Flutter project
+        run: flutter create --org com.formfix --project-name formfix fresh_project
+      - name: Fix minSdkVersion in build.gradle
+        run: python3 -c "
+          import re
+          f = open('fresh_project/android/app/build.gradle', 'r')
+          c = f.read()
+          f.close()
+          print('BEFORE:', c)
+          c2 = re.sub(r'minSdk\s+\S+', 'minSdk 24', c)
+          c3 = re.sub(r'minSdkVersion\s+\S+', 'minSdkVersion 24', c2)
+          f = open('fresh_project/android/app/build.gradle', 'w')
+          f.write(c3)
+          f.close()
+          print('AFTER:', c3)
+          "
+      - name: Copy source
         run: |
-          flutter clean
-          flutter pub get
-
-      - name: Force Gradle namespace compatibility patch
-        run: |
-          find ~/.pub-cache -type f -path "*google_mlkit*/android/build.gradle" | while read file; do
-            if ! grep -q "namespace" "$file"; then
-              sed -i '/android {/a \    namespace "com.mlkit.generated"' "$file"
-            fi
-          done
-
-      - name: Fix Android toolchain compatibility
-        run: |
-          cd android || true
-
-          # Force modern AndroidX + Gradle compatibility
-          echo "android.useAndroidX=true" >> gradle.properties
-          echo "android.enableJetifier=true" >> gradle.properties
-
+          cp -r source/lib/* fresh_project/lib/
+          cp source/pubspec.yaml fresh_project/pubspec.yaml
+          cp source/android/app/src/main/AndroidManifest.xml fresh_project/android/app/src/main/AndroidManifest.xml
+      - name: Install dependencies
+        working-directory: fresh_project
+        run: flutter pub get
       - name: Build APK
-        run: |
-          flutter clean
-          flutter pub get
-          flutter build apk --release --verbose
-
+        working-directory: fresh_project
+        run: flutter build apk --release --no-shrink
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: formfix-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          name: formfix-release
+          path: fresh_project/build/app/outputs/flutter-apk/app-release.apk
+          retention-days: 30
