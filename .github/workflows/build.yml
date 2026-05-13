@@ -16,24 +16,22 @@ jobs:
         with:
           distribution: temurin
           java-version: "17"
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: "3.41.9"
-          channel: stable
-          cache: false
+      - name: Install Flutter 3.41.9
+        run: |
+          git clone https://github.com/flutter/flutter.git -b 3.41.9 --depth 1 $HOME/flutter
+          echo "$HOME/flutter/bin" >> $GITHUB_PATH
+      - name: Flutter version check
+        run: flutter --version
       - name: Create fresh Flutter project
         run: flutter create --org com.formfix --project-name formfix fresh_project
       - name: Fix minSdk in build.gradle
         run: |
-          cat > /tmp/fix_sdk.py << 'EOF'
-          import re
-          c = open('fresh_project/android/app/build.gradle').read()
-          c = re.sub(r'minSdk\s+\S+', 'minSdk 24', c)
-          c = re.sub(r'minSdkVersion\s+\S+', 'minSdkVersion 24', c)
-          open('fresh_project/android/app/build.gradle', 'w').write(c)
-          print('minSdk fixed')
-          EOF
-          python3 /tmp/fix_sdk.py
+          python3 -c "
+          import re; path='fresh_project/android/app/build.gradle'
+          c=open(path).read()
+          c=re.sub(r'minSdk[Version]*\s+\S+','minSdk 24',c)
+          open(path,'w').write(c)
+          print('done')"
       - name: Copy source
         run: |
           cp -r source/lib/* fresh_project/lib/
